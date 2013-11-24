@@ -1,0 +1,6 @@
+nbproject
+app/config/application.js
+app/config/application.js.config
+node_modules/*
+.vagrant*
+npm-debug.log

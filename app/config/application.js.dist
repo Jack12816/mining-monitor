@@ -1,0 +1,66 @@
+/**
+ * Application Configuration
+ */
+var config = {};
+
+/**
+ * Cluster infrastructure
+ */
+config.infrastructure = {
+
+    monitor: {
+        url    : 'http://localhost:3000',
+        slaves : ['localhost'],
+        host   : '0.0.0.0',
+        port   : 3000,
+        worker : 1
+    }
+};
+
+/**
+ * Database connections
+ */
+config.database = {
+
+    mongodb: {
+
+        mm: {
+            plain   : false,
+            orm     : true,
+            uri     : 'mongodb://127.0.0.1:27017/mining_monitor',
+            options : {
+                db: {
+                    native_parser: true
+                }
+            }
+        }
+    }
+};
+
+/**
+ * Mining Config
+ */
+config.bitcoin = {
+    address: 'Your Bitcoin address'
+};
+
+/**
+ * External Services
+ */
+config.services = {
+
+    exchangeUSDToEUR: {
+        url: 'http://rate-exchange.appspot.com/currency?from=USD&to=EUR'
+    },
+
+    poolStats: {
+        url: 'http://eligius.st/~wizkid057/newstats/hashrate-json.php/'
+    },
+
+    btcCalculator: {
+        url: 'http://www.alloscomp.com/bitcoin/calculator/json'
+    }
+};
+
+module.exports = config;
+
