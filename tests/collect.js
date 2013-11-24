@@ -6,9 +6,39 @@ var greppy  = require('greppy');
 // Specific config
 var config   = greppy.config.get('app');
 var services = config.get('services');
+var bitcoinAddress = config.get('bitcoin').address;
 
 // Build a usefull set of information of multiple sources
 async.parallel([
+
+    // Fetch the all balances of the pool
+    function(callback) {
+
+        request(services.poolBalances.url, function(err, res, body) {
+
+            if (err || 200 !== res.statusCode) {
+                return callback && callback(
+                    err || new Error('Pool balances response code not 200')
+                );
+            }
+
+            try {
+
+                var balance = JSON.parse(body)[bitcoinAddress];
+
+                // Just a hint for the gc
+                res  = null;
+                body = null;
+
+                return callback && callback(null, balance);
+
+            } catch (e) {
+                return callback && callback(
+                    err || new Error('Exchange response not parseable')
+                );
+            }
+        });
+    },
 
     // Fetch current exchange for USD to EUR
     function(callback) {
@@ -34,8 +64,7 @@ async.parallel([
     // Fetch stats for the configured bitcoin address
     function(callback) {
 
-        request(services.poolStats.url + config.get('bitcoin').address,
-            function(err, res, body) {
+        request(services.poolStats.url + bitcoinAddress, function(err, res, body) {
 
             if (err || 200 !== res.statusCode) {
                 return callback && callback(
@@ -66,7 +95,7 @@ async.parallel([
     }
 
     // Just remap for readable properties
-    results = _.zipObject(['exchange', 'stats'], results);
+    results = _.zipObject(['balance', 'exchange', 'stats'], results);
 
     // Fetch calculation of bitcoins by stats of hashrates
     async.map(results.stats, function(item, callback) {
@@ -123,11 +152,13 @@ async.parallel([
             }
         })
 
-    }, function(err, results) {
+    }, function(err, stats) {
 
         if (err) {
             return console.log(err);
         }
+
+        results.stats = stats;
 
         console.log(JSON.stringify(results, null, '    '));
     });
